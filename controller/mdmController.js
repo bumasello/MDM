@@ -18,7 +18,17 @@ async function populaBip() {
   }
 }
 
+async function geraInvalido() {
+  try {
+    await mdmService.geraInvalido();
+    res.send("Invalidos Gerados!");
+  } catch {
+    next(err);
+  }
+}
+
 export default {
   recupData,
   populaBip,
+  geraInvalido,
 };

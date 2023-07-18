@@ -10,11 +10,56 @@ A aplicação inicia a busca dos dados de todas as bases com a função **recupD
 * * *
 2. Etapa 2 - **populaBip**
 
-Em seguida, os dados da tabela STG são processados e adicionados à tabela BIP por meio da função populaBip. Cada registro da STG recebe um código BIP, representando o enriquecimento realizado. A tabela BIP contém os dados enriquecidos, incluindo as associações e Primary Keys.
+Nesta etapa, os dados coletados na tabela STG serão armazenados no schema BIP, que possui diferentes tabelas para separar e organizar os dados de forma adequada. Cada registro será associado a um ID_BIP_PES, que será utilizado para agregar todas as IDs BIPs menores.
+
+O schema BIP é composto pelas seguintes tabelas:
+
+- **Tabela BIP_PES:**
+
+Esta tabela armazena os dados principais da pessoa física. Ela contém informações como NM_PES (nome da pessoa).
+Cada registro na tabela BIP_PES é associado a um ID_BIP_PES específico.
+
+- **Tabela BIP_PES_CTT_ELET:**
+
+Esta tabela armazena os dados de contato eletrônico da pessoa física.
+Cada registro na tabela BIP_PES_CTT_ELET está associado a um ID_BIP_PES correspondente na tabela BIP_PES.
+
+- **Tabela BIP_PES_END:**
+
+Esta tabela armazena os dados de endereço da pessoa física.
+Cada registro na tabela BIP_PES_END está associado a um ID_BIP_PES correspondente na tabela BIP_PES.
+
+- **Tabela BIP_PES_INFO_BCO:**
+
+Esta tabela armazena os dados de informação bancária da pessoa física.
+Cada registro na tabela BIP_PES_INFO_BCO está associado a um ID_BIP_PES correspondente na tabela BIP_PES.
+
+- **Tabela BIP_PES_TEL:**
+
+Esta tabela armazena os dados de telefone da pessoa física.
+Cada registro na tabela BIP_PES_TEL está associado a um ID_BIP_PES correspondente na tabela BIP_PES.
+
+- **Tabela BIP_PES_DOC_PAD:**
+
+Esta tabela armazena os dados de documento da pessoa física, como CPF ou CRM no caso de profissionais de saúde.
+Cada registro na tabela BIP_PES_DOC_PAD está associado a um ID_BIP_PES correspondente na tabela BIP_PES.
+
+Essa divisão em diferentes tabelas dentro do schema BIP permite armazenar os dados separadamente, evitando a mistura de informações. Cada tabela é responsável por armazenar um tipo específico de dado relacionado à pessoa física, e todos os registros são vinculados por meio do ID_BIP_PES.
+
+Dessa forma, a etapa 2 do processo de enriquecimento e curadoria consiste em populaBip, onde os dados coletados na tabela STG são inseridos nas tabelas correspondentes do schema BIP, permitindo a organização e associação adequada dos dados.
 * * *
 3. Etapa 3 - **geraInvalido**
 
-A função **geraInvalido** é acionada para verificar as inconsistências nos dados da tabela BIP. As seguintes verificações são realizadas:
+A função **geraInvalido** é acionada para verificar as inconsistências nos dados da tabela BIP. Nesta etapa, além de verificar as inconsistências e manipular a flag Status na tabela BIP, a função também realiza o armazenamento dos registros que foram invalidados no schema Invalidos.
+
+O Schema Invalidos contém tabelas que serão populadas com as informações dos registros invalidados. A tabela INV_BIP_PES é uma delas, e contém as seguintes informações para cada registro inválido de pessoa física:
+
+- **Tabela INV_BIP_PES:**
+Esta tabela armazena a ID_BIP_PES da pessoa física inválida, a data em que foi invalidada e o motivo da invalidação.
+Cada registro na tabela INV_BIP_PES representa uma pessoa física invalidada e está associado ao código do motivo de invalidação e à data de invalidação.
+
+As verificações a seguir são relacionadas a parte de **NOME** e **CPF** de **PESSOA FISICA**:
+
 - *Verificação 1*: O nome retornado pelo CPF do paciente (por meio dos bancos de dados incrementados pela API-SERASA) coincide exatamente com o nome registrado na coluna "Nome" da tabela STG. **Motivo Inválido: Nome diferente do Banco de Dados**
 - *Verificação 2:* O CPF contém uma quantidade diferente de 11 caracteres, ou não consiste em 11 caracteres numéricos, ou possui 14 caracteres contando "." e "-". **Motivo Inválido: CPF com quantidade diferente de 11 caracteres**
 - *Verificação 3:* O CPF registrado no registro da STG não possui nenhum retorno nos bancos de dados incrementados pela API-SERASA. **Motivo Inválido: CPF não encontrado no Banco de Dados**

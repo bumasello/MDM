@@ -4,6 +4,10 @@ async function recupData() {
   return await mdmRepository.recupData();
 }
 
+async function recupData() {
+  return await mdmRepository.recupData();
+}
+
 export default {
   recupData,
 };

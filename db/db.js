@@ -16,4 +16,10 @@ const data = {
   },
 };
 
+export const bancoQualidade = {
+  username: "user4",
+  password: "password4",
+  connectstring: "connection4",
+};
+
 export default data;

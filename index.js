@@ -17,6 +17,8 @@ cron.schedule("0 0 * * *", meiaNoiteEvento);
 
 function meiaNoiteEvento() {
   mdmRepository.recupData();
+  mdmRepository.populaBip();
+  mdmRepository.geraInvalido();
 
   console.log("20:50");
 }

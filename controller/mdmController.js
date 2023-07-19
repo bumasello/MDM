@@ -9,7 +9,7 @@ async function recupData(req, res, next) {
   }
 }
 
-async function populaBip() {
+async function populaBip(req, res, next) {
   try {
     await mdm.mdmService.populaBip();
     res.send("BIP Populada!");
@@ -18,7 +18,7 @@ async function populaBip() {
   }
 }
 
-async function geraInvalido() {
+async function geraInvalido(req, res, next) {
   try {
     await mdmService.geraInvalido();
     res.send("Invalidos Gerados!");

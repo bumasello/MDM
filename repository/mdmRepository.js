@@ -1,4 +1,3 @@
-import { query } from "express";
 import oracledb from "oracledb";
 import data from "../db/db.js";
 import { bancoQualidade } from "../db/db.js";

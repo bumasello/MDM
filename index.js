@@ -11,8 +11,6 @@ app.use((err, req, res, next) => {
   res.status(400).send({ error: err.message });
 });
 
-app.listen(3000, () => console.log("API Started"));
-
 cron.schedule("0 0 * * *", meiaNoiteEvento);
 
 function meiaNoiteEvento() {
@@ -22,3 +20,5 @@ function meiaNoiteEvento() {
 
   console.log("20:50");
 }
+
+app.listen(3000, () => console.log("API Started"));

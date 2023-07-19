@@ -22,4 +22,10 @@ export const bancoQualidade = {
   connectstring: "connection4",
 };
 
+export const qualidadeHml = {
+  username: "user5",
+  password: "password5",
+  connectstring: "connection5",
+};
+
 export default data;

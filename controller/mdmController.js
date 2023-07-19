@@ -1,34 +1,65 @@
 import mdmService from "../service/mdmService.js";
 
-async function recupData(req, res, next) {
+async function recupDataPac(req, res, next) {
   try {
-    await mdmService.recupData();
+    // await mdmService.recupData();
     res.send("Dados importados!");
   } catch {
     next(err);
   }
 }
 
-async function populaBip(req, res, next) {
+async function populaBipPac(req, res, next) {
   try {
-    await mdm.mdmService.populaBip();
+    // await mdm.mdmService.populaBip();
     res.send("BIP Populada!");
   } catch {
     next(err);
   }
 }
 
-async function geraInvalido(req, res, next) {
+async function geraInvalidoPac(req, res, next) {
   try {
-    await mdmService.geraInvalido();
+    // await mdmService.geraInvalido();
     res.send("Invalidos Gerados!");
   } catch {
     next(err);
   }
 }
 
+async function geraBupPac(req, res, next) {
+  try {
+    // await mdmService.geraBup();
+    res.send("BUP Populada!");
+  } catch {
+    next(err);
+  }
+}
+
+async function reproStatusPac(req, res, next) {
+  try {
+    // await mdmService.reproStatus();
+    res.send("Registros Reprocessados!");
+  } catch {
+    next(err);
+  }
+}
+
+async function testConexao(req, res, next) {
+  try {
+    let teste = await mdmService.testConexao();
+    req.body = teste;
+    res.send(req.body);
+  } catch {
+    next(err);
+  }
+}
+
 export default {
-  recupData,
-  populaBip,
-  geraInvalido,
+  recupDataPac,
+  populaBipPac,
+  geraInvalidoPac,
+  geraBupPac,
+  reproStatusPac,
+  testConexao,
 };

@@ -1,11 +1,9 @@
 import oracledb from "oracledb";
-import data from "../db/db.js";
 import { bancoQualidade } from "../db/db.js";
 import { qualidadeHml } from "../db/db.js";
 
 async function recupDataPac() {
   for (let combo in data) {
-    const { username, password, connectstring } = data[combo];
     try {
       // Cria conexão
       const connection = await oracledb.getConnection({
@@ -110,9 +108,9 @@ async function testConexao() {
   try {
     console.log("Inciando conexão...");
     const connection = await oracledb.getConnection({
-      user: username,
-      password: password,
-      connectString: connectstring,
+      user: "system",
+      password: "brumas1027",
+      connectString: "localhost:1521/xepdb1",
     });
     console.log("Conectado!");
     await connection.close();

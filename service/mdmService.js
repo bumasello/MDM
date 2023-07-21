@@ -1,7 +1,7 @@
 import mdmRepository from "../repository/mdmRepository.js";
 
 async function recupDataPac() {
-  return await mdmRepository.recupData();
+  return await mdmRepository.recupDataPac();
 }
 
 async function populaBipPac() {

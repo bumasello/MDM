@@ -2,7 +2,7 @@ import mdmService from "../service/mdmService.js";
 
 async function recupDataPac(req, res, next) {
   try {
-    // await mdmService.recupData();
+    await mdmService.recupDataPac();
     res.send("Dados importados!");
   } catch {
     next(err);

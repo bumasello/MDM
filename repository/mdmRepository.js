@@ -9,17 +9,18 @@ async function recupDataPac() {
     const connection = await oracledb.getConnection({
       user: "SYSTEM",
       password: "brumas1027",
-      connectString: "localhost:1521/xepdb1",
+      connectString: "localhost:1521/xe",
     });
     console.log("Conectado");
     // Consulta
     console.log("Iniciando query");
-    let result = await connection.execute(query.q_recupDataPacCursorDtl);
+    await connection.execute(query.q_log_controle_inicio);
+    console.log("Logado - Inicio");
+    await connection.execute(query.q_recupDataPacCursorDtl);
     console.log("Query finalizada...");
-
-    await connection.close();
+    await connection.execute(query.q_log_controle_fim);
+    console.log("Logado - Fim");
     console.log("Conexão fechada");
-    return result.rows;
   } catch (error) {
     console.error("Erro ao Consultar Hospitais", error);
   }

@@ -1,0 +1,294 @@
+QUERYS UTILIZADAS
+
+CREATE TABLE HOSPITAL_BANGU (
+  cd_prontuario NUMBER,
+  nm_paciente VARCHAR2(100),
+  nm_mae VARCHAR2(100),
+  nm_pai VARCHAR2(100),
+  dt_nascimento DATE,
+  cd_sexo VARCHAR2(1),
+  nr_cpf VARCHAR2(11),
+  nm_lgr_end_residencial VARCHAR2(100),
+  nr_end_residencial VARCHAR2(10),
+  nm_brro_end_residencial VARCHAR2(50),
+  nm_cid_end_residencial VARCHAR2(50),
+  cep_end_residencial VARCHAR2(8),
+  nr_tel_residencial VARCHAR2(15),
+  nr_tel_celular VARCHAR2(15),
+  nr_tel_comercial VARCHAR2(15),
+  dt_abrt_prontuario DATE,
+  ds_email VARCHAR2(100),
+  bip NUMBER,
+  dt_pcm_cdd DATE,
+  flag_prc_para_bip VARCHAR2(1)
+);
+
+CREATE TABLE controle_mdm_inicio (
+  id_carga NUMBER PRIMARY KEY,
+  dt_inicio DATE NOT NULL,
+  nm_carga VARCHAR2(100) NOT NULL
+);
+
+CREATE TABLE controle_mdm_fim (
+  id_carga NUMBER PRIMARY KEY,
+  dt_fim DATE NOT NULL,
+  nm_carga VARCHAR2(100) NOT NULL,
+  id_carga_inicio NUMBER NOT NULL,
+  FOREIGN KEY (id_carga_inicio) REFERENCES controle_mdm_inicio(id_carga)
+);
+
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+-- Script de INSERT com 10000 linhas
+-- Substitua "TABELA_PACIENTES" pelo nome da sua tabela de destino
+
+-- Tabela temporária para armazenar os 50 nomes aleatórios
+CREATE GLOBAL TEMPORARY TABLE temp_nomes (nome VARCHAR2(100));
+
+-- Inserir os 50 nomes aleatórios na tabela temporária
+BEGIN
+  FOR i IN 1..50 LOOP
+    INSERT INTO temp_nomes (nome)
+    VALUES ('Nome_' || i);
+  END LOOP;
+END;
+/
+
+-- Inserir 10000 linhas na tabela de destino com valores aleatórios
+INSERT INTO hospital_niteroi (
+  cd_prontuario,
+  nm_paciente,
+  nm_mae,
+  nm_pai,
+  dt_nascimento,
+  cd_sexo,
+  nr_cpf,
+  nm_lgr_end_residencial,
+  nr_end_residencial,
+  nm_brro_end_residencial,
+  nm_cid_end_residencial,
+  cep_end_residencial,
+  nr_tel_residencial,
+  nr_tel_celular,
+  nr_tel_comercial,
+  dt_abrt_prontuario,
+  ds_email,
+  bip,
+  dt_pcm_cdd,
+  flag_prc_para_bip
+)
+SELECT
+  ROWNUM AS cd_prontuario,
+  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+  TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
+  CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
+  TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
+  'Logradouro' || TO_CHAR(LEVEL) AS nm_lgr_end_residencial,
+  TO_CHAR(LEVEL) AS nr_end_residencial,
+  'Bairro' || TO_CHAR(LEVEL) AS nm_brro_end_residencial,
+  'Cidade' || TO_CHAR(LEVEL) AS nm_cid_end_residencial,
+  TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000, 99999999))) AS cep_end_residencial,
+  TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
+  TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
+  TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
+  TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_prontuario,
+  'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
+  NULL AS bip,
+  NULL AS dt_pcm_cdd,
+  'N' AS flag_prc_para_bip
+FROM DUAL
+CONNECT BY LEVEL <= 10000;
+
+-- Remover a tabela temporária
+DROP TABLE temp_nomes;
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+
+CREATE DATABASE LINK hospital_gloria_dtl
+CONNECT TO system IDENTIFIED BY brumas1027
+USING '
+    (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = xepdb1)
+    )
+  )';
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+
+
+
+CREATE OR REPLACE NONEDITIONABLE PROCEDURE recupDataPacCursorBanguDtl AS
+  CURSOR cur_dados IS
+    SELECT CD_PRONTUARIO, NM_PACIENTE, NM_MAE, NM_PAI, DT_NASCIMENTO, CD_SEXO, NR_CPF,
+           nm_lgr_end_residencial, nr_end_residencial, nm_brro_end_residencial,
+           nm_cid_end_residencial, cep_end_residencial, nr_tel_residencial,
+           nr_tel_celular, nr_tel_comercial, dt_abrt_prontuario, ds_email,
+           bip, dt_pcm_cdd, flag_prc_para_bip
+    FROM hospital_bangu@hospital_bangu_dtl;
+
+  -- Declaração de variáveis para armazenar os valores do cursor
+  variavel1 stg_paciente_bangu.CD_PRONTUARIO%TYPE;
+  variavel2 stg_paciente_bangu.NM_PACIENTE%TYPE;
+  variavel3 stg_paciente_bangu.NM_MAE%TYPE;
+  variavel4 stg_paciente_bangu.NM_PAI%TYPE;
+  variavel5 stg_paciente_bangu.DT_NASCIMENTO%TYPE;
+  variavel6 stg_paciente_bangu.CD_SEXO%TYPE;
+  variavel7 stg_paciente_bangu.NR_CPF%TYPE;
+  variavel8 stg_paciente_bangu.nm_lgr_end_residencial%TYPE;
+  variavel9 stg_paciente_bangu.nr_end_residencial%TYPE;
+  variavel10 stg_paciente_bangu.nm_brro_end_residencial%TYPE;
+  variavel11 stg_paciente_bangu.nm_cid_end_residencial%TYPE;
+  variavel12 stg_paciente_bangu.cep_end_residencial%TYPE;
+  variavel13 stg_paciente_bangu.nr_tel_residencial%TYPE;
+  variavel14 stg_paciente_bangu.nr_tel_celular%TYPE;
+  variavel15 stg_paciente_bangu.nr_tel_comercial%TYPE;
+  variavel16 stg_paciente_bangu.dt_abrt_prontuario%TYPE;
+  variavel17 stg_paciente_bangu.ds_email%TYPE;
+  variavel18 stg_paciente_bangu.bip%TYPE;
+  variavel19 stg_paciente_bangu.dt_pcm_cdd%TYPE;
+  variavel20 stg_paciente_bangu.flag_prc_para_bip%TYPE;
+BEGIN
+  -- Abrir o cursor
+  OPEN cur_dados;
+
+  -- Loop para percorrer os dados do cursor
+  LOOP
+    FETCH cur_dados INTO 
+    variavel1, 
+    variavel2, 
+    variavel3, 
+    variavel4, 
+    variavel5, 
+    variavel6, 
+    variavel7,
+    variavel8, 
+    variavel9, 
+    variavel10, 
+    variavel11, 
+    variavel12, 
+    variavel13, 
+    variavel14,
+    variavel15,
+    variavel16,
+    variavel17,
+    variavel18,
+    variavel19,
+    variavel20;
+    EXIT WHEN cur_dados%NOTFOUND;
+
+    -- Inserir os dados na tabela stg_paciente_bangu
+    INSERT INTO stg_paciente_bangu (
+    CD_PRONTUARIO, 
+    NM_PACIENTE, 
+    NM_MAE, 
+    NM_PAI, 
+    DT_NASCIMENTO, 
+    CD_SEXO, 
+    NR_CPF, 
+    nm_lgr_end_residencial, 
+    nr_end_residencial, 
+    nm_brro_end_residencial,
+    nm_cid_end_residencial,
+    cep_end_residencial,
+    nr_tel_residencial,
+    nr_tel_celular,
+    nr_tel_comercial,
+    dt_abrt_prontuario,
+    ds_email,
+    bip,
+    dt_pcm_cdd,
+    flag_prc_para_bip)
+    VALUES (
+    variavel1, 
+    variavel2, 
+    variavel3, 
+    variavel4, 
+    variavel5, 
+    variavel6, 
+    variavel7,
+    variavel8,
+    variavel9,
+    variavel10,
+    variavel11, 
+    variavel12, 
+    variavel13, 
+    variavel14, 
+    variavel15, 
+    variavel16, 
+    variavel17,
+    variavel18,
+    variavel19,
+    variavel20);
+  END LOOP;
+
+  -- Fechar o cursor
+  CLOSE cur_dados;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+END;
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+
+CREATE SEQUENCE seq_id_carga
+  START WITH 1
+  INCREMENT BY 1;
+  
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+  
+CREATE OR REPLACE PROCEDURE LOG_CONTROLE_MDM_INICIO(
+  p_nm_carga IN VARCHAR2
+) AS
+BEGIN
+  INSERT INTO controle_mdm_inicio (id_carga, dt_inicio, nm_carga)
+  VALUES (seq_id_carga.NEXTVAL, SYSDATE, p_nm_carga);
+  COMMIT;
+END;
+/
+
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE LOG_CONTROLE_MDM_FIM(
+  p_nm_carga IN VARCHAR2
+) AS
+  v_id_carga_inicio controle_mdm_inicio.id_carga%TYPE;
+BEGIN
+  SELECT MAX(id_carga) INTO v_id_carga_inicio
+  FROM controle_mdm_inicio
+  WHERE nm_carga = p_nm_carga;
+
+  INSERT INTO controle_mdm_fim (id_carga, dt_fim, nm_carga, id_carga_inicio)
+  VALUES (seq_id_carga.NEXTVAL, SYSDATE, p_nm_carga, v_id_carga_inicio);
+  COMMIT;
+END;
+/
+

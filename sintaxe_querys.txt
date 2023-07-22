@@ -1,0 +1,84 @@
+-- q_recupDataPacCursor--------------------------------------------------------------------------------------
+Recupera dados de uma tabela de um banco e insere em outra tabela do mesmo banco.
+
+
+create or replace NONEDITIONABLE PROCEDURE recupDataPacCursor AS
+  CURSOR cur_dados IS
+    SELECT CD_PRONTUARIO, NM_PACIENTE, NM_MAE, NM_PAI, DT_NASCIMENTO, CD_SEXO, NR_CPF
+    FROM STGMDM;
+
+  -- Declaração de variáveis para armazenar os valores do cursor
+  variavel1 STGMDM.CD_PRONTUARIO%TYPE;
+  variavel2 STGMDM.NM_PACIENTE%TYPE;
+  variavel3 STGMDM.NM_MAE%TYPE;
+  variavel4 STGMDM.NM_PAI%TYPE;
+  variavel5 STGMDM.DT_NASCIMENTO%TYPE;
+  variavel6 STGMDM.CD_SEXO%TYPE;
+  variavel7 STGMDM.NR_CPF%TYPE;
+BEGIN
+  -- Abrir o cursor
+  OPEN cur_dados;
+
+  -- Loop para percorrer os dados do cursor
+  LOOP
+    FETCH cur_dados INTO variavel1, variavel2, variavel3, variavel4, variavel5, variavel6, variavel7;
+    EXIT WHEN cur_dados%NOTFOUND;
+
+    -- Inserir os dados na tabela BIPMDM
+    INSERT INTO BIPMDM (CD_PRONTUARIO, NM_PACIENTE, NM_MAE, NM_PAI, DT_NASCIMENTO, CD_SEXO, NR_CPF)
+    VALUES (variavel1, variavel2, variavel3, variavel4, variavel5, variavel6, variavel7);
+  END LOOP;
+
+  -- Fechar o cursor
+  CLOSE cur_dados;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+
+
+-- q_recupDataPacCursorDtl-----------------------------------------------------------------------------------
+Recupera dados de um banco para o outro. Exmp: Recupera os dados do banco STGMDM@LOCALHOSTXE e incrementa no 
+banco BUPMDM@LOCALHOSTXEPDB1
+
+
+create or replace NONEDITIONABLE PROCEDURE recupDataPacCursorDtl AS
+  CURSOR cur_dados IS
+    SELECT CD_PRONTUARIO, NM_PACIENTE, NM_MAE, NM_PAI, DT_NASCIMENTO, CD_SEXO, NR_CPF
+    FROM STGMDM@LOCALHOSTXE; -- Substitua "sua_tabela" pelo nome da tabela de origem.
+
+  -- Declaração de variáveis para armazenar os valores do cursor
+  variavel1 BUPMDM.CD_PRONTUARIO%TYPE;
+  variavel2 BUPMDM.NM_PACIENTE%TYPE;
+  variavel3 BUPMDM.NM_MAE%TYPE;
+  variavel4 BUPMDM.NM_PAI%TYPE;
+  variavel5 BUPMDM.DT_NASCIMENTO%TYPE;
+  variavel6 BUPMDM.CD_SEXO%TYPE;
+  variavel7 BUPMDM.NR_CPF%TYPE;
+BEGIN
+  -- Abrir o cursor
+  OPEN cur_dados;
+
+  -- Loop para percorrer os dados do cursor
+  LOOP
+    FETCH cur_dados INTO variavel1, variavel2, variavel3, variavel4, variavel5, variavel6, variavel7;
+    EXIT WHEN cur_dados%NOTFOUND;
+
+    -- Inserir os dados na tabela BIPMDM
+    INSERT INTO BUPMDM (CD_PRONTUARIO, NM_PACIENTE, NM_MAE, NM_PAI, DT_NASCIMENTO, CD_SEXO, NR_CPF)
+    VALUES (variavel1, variavel2, variavel3, variavel4, variavel5, variavel6, variavel7);
+  END LOOP;
+
+  -- Fechar o cursor
+  CLOSE cur_dados;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+

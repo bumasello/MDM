@@ -1,23 +1,27 @@
 import oracledb from "oracledb";
 import { bancoQualidade } from "../db/db.js";
 import { qualidadeHml } from "../db/db.js";
+import query from "../querys/query.js";
 
 async function recupDataPac() {
-  for (let combo in data) {
-    try {
-      // Cria conexão
-      const connection = await oracledb.getConnection({
-        user: username,
-        password: password,
-        connectString: connectstring,
-      });
-      // Consulta
-      await connection.execute(query);
-      // Fecha conexão
-      await connection.close();
-    } catch (error) {
-      console.error("Erro ao Consultar Hospitais", error);
-    }
+  try {
+    // Cria conexão
+    const connection = await oracledb.getConnection({
+      user: "SYSTEM",
+      password: "brumas1027",
+      connectString: "localhost:1521/xepdb1",
+    });
+    console.log("Conectado");
+    // Consulta
+    console.log("Iniciando query");
+    let result = await connection.execute(query.q_recupDataPacCursorDtl);
+    console.log("Query finalizada...");
+
+    await connection.close();
+    console.log("Conexão fechada");
+    return result.rows;
+  } catch (error) {
+    console.error("Erro ao Consultar Hospitais", error);
   }
 }
 

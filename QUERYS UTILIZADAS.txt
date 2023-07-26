@@ -1,5 +1,7 @@
 QUERYS UTILIZADAS
 
+CRIAR TABELAS
+
 CREATE TABLE HOSPITAL_BANGU (
   cd_prontuario NUMBER,
   nm_paciente VARCHAR2(100),
@@ -37,11 +39,58 @@ CREATE TABLE controle_mdm_fim (
   FOREIGN KEY (id_carga_inicio) REFERENCES controle_mdm_inicio(id_carga)
 );
 
+CREATE TABLE bip_pes (
+  id_bip_pes NUMBER PRIMARY KEY,
+  nm_pes VARCHAR2(100),
+  dt_cad_bip_pes DATE,
+  dt_atu_bip_pes DATE
+);
+
+CREATE TABLE bip_pes_doc_pad (
+  id_bip NUMBER PRIMARY KEY,
+  nr_cpf VARCHAR2(11),
+  nr_doc_prof VARCHAR2(20),
+  uf_doc_prof VARCHAR2(2),
+  dt_atu_bip_pes DATE
+);
+
+CREATE TABLE bip_pes_end (
+  id_bip_pes_end NUMBER PRIMARY KEY,
+  id_bip_pes NUMBER REFERENCES bip_pes(id_bip_pes),
+  nm_lgd VARCHAR2(100),
+  nr_lgd VARCHAR2(10),
+  nm_brro VARCHAR2(50),
+  nr_cep VARCHAR2(8),
+  dt_cad_bip_pes_end DATE,
+  dt_atu_bip_pes_end DATE
+);
+
+CREATE TABLE bip_pes_ctt_elet (
+  id_bip_pes_ctt_elet NUMBER PRIMARY KEY,
+  id_bip_pes NUMBER REFERENCES bip_pes(id_bip_pes),
+  tx_ctt_elet VARCHAR2(100),
+  dt_cad_bip_ctt_elet DATE,
+  dt_atu_bip_pes_ctt_elet DATE
+);
+
+CREATE TABLE bip_pes_tel (
+  id_bip_pes_tel NUMBER PRIMARY KEY,
+  id_bip_pes NUMBER REFERENCES bip_pes(id_bip_pes),
+  cd_ddd VARCHAR2(3),
+  cd_ddi VARCHAR2(3),
+  nr_tel VARCHAR2(15),
+  dt_cad_bip_pes_tel DATE,
+  dt_atu_bip_pes_tel DATE
+);
+
+
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
+
+POPULAR TABELA ORIGEM
 
 -- Script de INSERT com 10000 linhas
 -- Substitua "TABELA_PACIENTES" pelo nome da sua tabela de destino
@@ -113,6 +162,7 @@ DROP TABLE temp_nomes;
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
+CRIAR DATABASE LINK
 
 CREATE DATABASE LINK hospital_gloria_dtl
 CONNECT TO system IDENTIFIED BY brumas1027
@@ -130,7 +180,7 @@ USING '
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
-
+POPULAR STG
 
 
 CREATE OR REPLACE NONEDITIONABLE PROCEDURE recupDataPacCursorBanguDtl AS
@@ -251,16 +301,20 @@ END;
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
+SEQUENCES
 
 CREATE SEQUENCE seq_id_carga
   START WITH 1
   INCREMENT BY 1;
+  
+CREATE SEQUENCE seq_bip_pes START WITH 1 INCREMENT BY 1;
   
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
+LOGGER
   
 CREATE OR REPLACE PROCEDURE LOG_CONTROLE_MDM_INICIO(
   p_nm_carga IN VARCHAR2
@@ -271,11 +325,6 @@ BEGIN
   COMMIT;
 END;
 /
-
-------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE LOG_CONTROLE_MDM_FIM(
   p_nm_carga IN VARCHAR2
@@ -292,3 +341,39 @@ BEGIN
 END;
 /
 
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+POPULAR BIP
+
+CREATE OR REPLACE PROCEDURE popula_bip_pes AS
+BEGIN
+  -- Inserir dados da tabela STG_PACIENTE_BANGU
+  INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, NM_PACIENTE, SYSDATE, SYSDATE
+  FROM STG_PACIENTE_BANGU;
+
+  -- Inserir dados da tabela STG_PACIENTE_CAXIAS
+  INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, NM_PACIENTE, SYSDATE, SYSDATE
+  FROM STG_PACIENTE_CAXIAS;
+
+  -- Inserir dados da tabela STG_PACIENTE_GLORIA
+  INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, NM_PACIENTE, SYSDATE, SYSDATE
+  FROM STG_PACIENTE_GLORIA;
+
+  -- Inserir dados da tabela STG_PACIENTE_NITEROI
+  INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, NM_PACIENTE, SYSDATE, SYSDATE
+  FROM STG_PACIENTE_NITEROI;
+  
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+/

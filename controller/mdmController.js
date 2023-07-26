@@ -2,9 +2,8 @@ import mdmService from "../service/mdmService.js";
 
 async function recupDataPac(req, res, next) {
   try {
-    let result = await mdmService.recupDataPac();
-    req.body = result;
-    res.send(req.body);
+    await mdmService.recupDataPac();
+    res.send("STG Populada!");
   } catch {
     next(err);
   }
@@ -12,7 +11,7 @@ async function recupDataPac(req, res, next) {
 
 async function populaBipPac(req, res, next) {
   try {
-    // await mdm.mdmService.populaBip();
+    await mdmService.populaBipPac();
     res.send("BIP Populada!");
   } catch {
     next(err);

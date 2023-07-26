@@ -123,7 +123,7 @@ EXCEPTION
     ROLLBACK;
 END;
 
--- q_log_controle_inicio -----------------------------------------------------------------------------------
+-- q_log_controle_inicio (Rdp / Pbp) -----------------------------------------------------------------------------------
 Fica responsável por logar o inicio das querys nos bancos de controle do MDM.
 
 CHAMADA: 
@@ -142,7 +142,7 @@ BEGIN
 END;
 /
 
--- q_log_controle_fim -----------------------------------------------------------------------------------
+-- q_log_controle_fim (Rdp / Pbp) -----------------------------------------------------------------------------------
 Fica responsável por logar o fim das querys nos bancos de controle do MDM.
 
 CHAMADA:
@@ -165,3 +165,183 @@ BEGIN
   COMMIT;
 END;
 /
+
+-- q_populaBipPac -----------------------------------------------------------------------------------
+Fica responsável por criar e popular a camada BIP do banco
+
+CHAMADA:
+BEGIN
+popula_bip_pes_doc_pad();
+popula_bip_pes();
+popula_bip_pes_ctt_elet();
+popula_bip_pes_end();
+popula_bip_pes_tel();
+END;
+
+Sintaxe query:
+
+1 ETAPA - POPULA_BIP_PES_DOC_PAD -----------------------------------------------------------
+create or replace NONEDITIONABLE PROCEDURE popula_bip_pes_doc_pad AS
+BEGIN
+  -- Inserir dados da tabela STG_PACIENTE_BANGU
+  INSERT INTO bip_pes_doc_pad (id_bip_pes, nr_cpf, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, nr_cpf, SYSDATE
+  FROM STG_PACIENTE_BANGU;
+
+  -- Inserir dados da tabela STG_PACIENTE_CAXIAS
+  INSERT INTO bip_pes_doc_pad (id_bip_pes, nr_cpf, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, nr_cpf, SYSDATE
+  FROM STG_PACIENTE_CAXIAS;
+
+  -- Inserir dados da tabela STG_PACIENTE_GLORIA
+  INSERT INTO bip_pes_doc_pad (id_bip_pes, nr_cpf, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, nr_cpf, SYSDATE
+  FROM STG_PACIENTE_GLORIA;
+
+  -- Inserir dados da tabela STG_PACIENTE_NITEROI
+  INSERT INTO bip_pes_doc_pad (id_bip_pes, nr_cpf, dt_atu_bip_pes)
+  SELECT seq_bip_pes.NEXTVAL, nr_cpf, SYSDATE
+  FROM STG_PACIENTE_NITEROI;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END; 
+
+2 ETAPA - POPULA_BIP_PES -----------------------------------------------------------
+
+create or replace NONEDITIONABLE PROCEDURE popula_bip_pes AS
+BEGIN
+  FOR rec IN (SELECT id_bip_pes, nr_cpf FROM bip_pes_doc_pad)
+  LOOP
+    INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+    SELECT rec.id_bip_pes, p.nm_paciente, SYSDATE, SYSDATE
+    FROM stg_paciente_bangu p
+    WHERE p.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+    SELECT rec.id_bip_pes, c.nm_paciente, SYSDATE, SYSDATE
+    FROM stg_paciente_caxias c
+    WHERE c.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+    SELECT rec.id_bip_pes, n.nm_paciente, SYSDATE, SYSDATE
+    FROM stg_paciente_niteroi n
+    WHERE n.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes (id_bip_pes, nm_pes, dt_cad_bip_pes, dt_atu_bip_pes)
+    SELECT rec.id_bip_pes, g.nm_paciente, SYSDATE, SYSDATE
+    FROM stg_paciente_gloria g
+    WHERE g.nr_cpf = rec.nr_cpf;
+  END LOOP;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+
+3 ETAPA - POPULA_BIP_PES_CTT_ELET -------------------------------------------------
+
+create or replace NONEDITIONABLE PROCEDURE popula_bip_pes_ctt_elet AS
+BEGIN
+  FOR rec IN (SELECT id_bip_pes, nr_cpf FROM bip_pes_doc_pad)
+  LOOP
+    INSERT INTO bip_pes_ctt_elet (id_bip_pes_ctt_elet, id_bip_pes, tx_ctt_elet, dt_cad_bip_ctt_elet, dt_atu_bip_pes_ctt_elet)
+    SELECT seq_bip_pes_ctt_elet.NEXTVAL, rec.id_bip_pes, p.ds_email, SYSDATE, SYSDATE
+    FROM stg_paciente_bangu p
+    WHERE p.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes_ctt_elet (id_bip_pes_ctt_elet, id_bip_pes, tx_ctt_elet, dt_cad_bip_ctt_elet, dt_atu_bip_pes_ctt_elet)
+    SELECT seq_bip_pes_ctt_elet.NEXTVAL, rec.id_bip_pes, c.ds_email, SYSDATE, SYSDATE
+    FROM stg_paciente_caxias c
+    WHERE c.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes_ctt_elet (id_bip_pes_ctt_elet, id_bip_pes, tx_ctt_elet, dt_cad_bip_ctt_elet, dt_atu_bip_pes_ctt_elet)
+    SELECT seq_bip_pes_ctt_elet.NEXTVAL, rec.id_bip_pes, n.ds_email, SYSDATE, SYSDATE
+    FROM stg_paciente_niteroi n
+    WHERE n.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes_ctt_elet (id_bip_pes_ctt_elet, id_bip_pes, tx_ctt_elet, dt_cad_bip_ctt_elet, dt_atu_bip_pes_ctt_elet)
+    SELECT seq_bip_pes_ctt_elet.NEXTVAL, rec.id_bip_pes, g.ds_email, SYSDATE, SYSDATE
+    FROM stg_paciente_gloria g
+    WHERE g.nr_cpf = rec.nr_cpf;
+  END LOOP;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+
+4 ETAPA - POPULA_BIP_PES_END -------------------------------------------------------
+
+create or replace NONEDITIONABLE PROCEDURE popula_bip_pes_end AS
+BEGIN
+  FOR rec IN (SELECT id_bip_pes, nr_cpf FROM bip_pes_doc_pad)
+  LOOP
+    INSERT INTO bip_pes_end (id_bip_pes_end, id_bip_pes, nm_lgd, nr_lgd, nm_brro, nr_cep, dt_cad_bip_pes_end, dt_atu_bip_pes_end)
+    SELECT seq_bip_pes_end.NEXTVAL, rec.id_bip_pes, p.nm_lgr_end_residencial, p.nr_end_residencial, p.nm_brro_end_residencial, p.cep_end_residencial, SYSDATE, SYSDATE
+    FROM stg_paciente_bangu p
+    WHERE p.nr_cpf = rec.nr_cpf;
+
+    INSERT INTO bip_pes_end (id_bip_pes_end, id_bip_pes, nm_lgd, nr_lgd, nm_brro, nr_cep, dt_cad_bip_pes_end, dt_atu_bip_pes_end)
+    SELECT seq_bip_pes_end.NEXTVAL, rec.id_bip_pes, c.nm_lgr_end_residencial, c.nr_end_residencial, c.nm_brro_end_residencial, c.cep_end_residencial, SYSDATE, SYSDATE
+    FROM stg_paciente_caxias c
+    WHERE c.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes_end (id_bip_pes_end, id_bip_pes, nm_lgd, nr_lgd, nm_brro, nr_cep, dt_cad_bip_pes_end, dt_atu_bip_pes_end)
+    SELECT seq_bip_pes_end.NEXTVAL, rec.id_bip_pes, n.nm_lgr_end_residencial, n.nr_end_residencial, n.nm_brro_end_residencial, n.cep_end_residencial, SYSDATE, SYSDATE
+    FROM stg_paciente_niteroi n
+    WHERE n.nr_cpf = rec.nr_cpf;
+    
+    INSERT INTO bip_pes_end (id_bip_pes_end, id_bip_pes, nm_lgd, nr_lgd, nm_brro, nr_cep, dt_cad_bip_pes_end, dt_atu_bip_pes_end)
+    SELECT seq_bip_pes_end.NEXTVAL, rec.id_bip_pes, g.nm_lgr_end_residencial, g.nr_end_residencial, g.nm_brro_end_residencial, g.cep_end_residencial, SYSDATE, SYSDATE
+    FROM stg_paciente_gloria g
+    WHERE g.nr_cpf = rec.nr_cpf;
+  END LOOP;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+
+5 ETAPA - POPULA_BIP_PES_TEL ------------------------------------------------------
+
+create or replace NONEDITIONABLE PROCEDURE popula_bip_pes_tel AS
+BEGIN
+  FOR rec IN (SELECT id_bip_pes, nr_cpf FROM bip_pes_doc_pad)
+  LOOP
+    INSERT INTO bip_pes_tel (id_bip_pes_tel, id_bip_pes, cd_ddd, cd_ddi, nr_tel, dt_cad_bip_pes_tel, dt_atu_bip_pes_tel)
+    SELECT seq_bip_pes_tel.NEXTVAL, rec.id_bip_pes, null, null, p.nr_tel_celular, SYSDATE, SYSDATE
+    FROM stg_paciente_bangu p
+    WHERE p.nr_cpf = rec.nr_cpf;
+
+    INSERT INTO bip_pes_tel (id_bip_pes_tel, id_bip_pes, cd_ddd, cd_ddi, nr_tel, dt_cad_bip_pes_tel, dt_atu_bip_pes_tel)
+    SELECT seq_bip_pes_tel.NEXTVAL, rec.id_bip_pes, null, null, c.nr_tel_celular, SYSDATE, SYSDATE
+    FROM stg_paciente_caxias c
+    WHERE c.nr_cpf = rec.nr_cpf;
+
+    INSERT INTO bip_pes_tel (id_bip_pes_tel, id_bip_pes, cd_ddd, cd_ddi, nr_tel, dt_cad_bip_pes_tel, dt_atu_bip_pes_tel)
+    SELECT seq_bip_pes_tel.NEXTVAL, rec.id_bip_pes, null, null, n.nr_tel_celular, SYSDATE, SYSDATE
+    FROM stg_paciente_niteroi n
+    WHERE n.nr_cpf = rec.nr_cpf;
+
+    INSERT INTO bip_pes_tel (id_bip_pes_tel, id_bip_pes, cd_ddd, cd_ddi, nr_tel, dt_cad_bip_pes_tel, dt_atu_bip_pes_tel)
+    SELECT seq_bip_pes_tel.NEXTVAL, rec.id_bip_pes, null, null, g.nr_tel_celular, SYSDATE, SYSDATE
+    FROM stg_paciente_gloria g
+    WHERE g.nr_cpf = rec.nr_cpf;
+  END LOOP;
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;

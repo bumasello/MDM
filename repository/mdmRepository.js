@@ -14,12 +14,13 @@ async function recupDataPac() {
     console.log("Conectado");
     // Consulta
     console.log("Iniciando query");
-    await connection.execute(query.q_log_controle_inicio);
+    await connection.execute(query.q_log_controle_inicio_Rdp);
     console.log("Logado - Inicio");
     await connection.execute(query.q_recupDataPacCursorDtl);
     console.log("Query finalizada...");
-    await connection.execute(query.q_log_controle_fim);
+    await connection.execute(query.q_log_controle_fim_Rdp);
     console.log("Logado - Fim");
+    await connection.close();
     console.log("Conexão fechada");
   } catch (error) {
     console.error("Erro ao Consultar Hospitais", error);
@@ -27,23 +28,24 @@ async function recupDataPac() {
 }
 
 async function populaBipPac() {
-  const { username, password, connectstring } = bancoQualidade;
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
-      user: username,
-      password: password,
-      connectString: connectstring,
+      user: "SYSTEM",
+      password: "brumas1027",
+      connectString: "localhost:1521/xe",
     });
     // Query
-    await connection.execute(query); // BIP_PES
-    await connection.execute(query); // BIP_PES_CTT_ELET
-    await connection.execute(query); // BIP_PES_END
-    await connection.execute(query); // BIP_PES_INFO_BCO
-    await connection.execute(query); // BIP_PES_TEL
-    await connection.execute(query); // BIP_PES_DOC_PAD
+    console.log("Iniciando query");
+    await connection.execute(query.q_log_controle_inicio_Pbp);
+    console.log("Logado - Inicio");
+    await connection.execute(query.q_populaBipPac);
+    console.log("Query finalizada...");
+    await connection.execute(query.q_log_controle_fim_Pbp);
+    console.log("Logado - Fim");
     // Fecha conexão
     await connection.close();
+    console.log("Conexão fechada");
   } catch (error) {
     console.error("Erro ao Popular BIP", error);
   }

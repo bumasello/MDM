@@ -3,11 +3,11 @@ import mdmController from "../controller/mdmController.js";
 
 const router = express.Router();
 
-router.get("/recupDataPac", mdmController.recupDataPac);
-router.get("/populaBipPac", mdmController.populaBipPac);
-router.get("/geraInvalido", mdmController.geraInvalidoPac);
-router.get("/geraBup", mdmController.geraBupPac);
-router.get("/reproStatus", mdmController.reproStatusPac);
+router.get("/populaBrzCor", mdmController.populaBrzCor);
+router.get("/populaPrtCor", mdmController.populaPrtCor);
+router.get("/geraInvalidoCor", mdmController.geraInvalidoCor);
+router.get("/populaGldCor", mdmController.populaGldCor);
+router.get("/reproStatus", mdmController.reproStatusCor);
 router.get("/testConexao", mdmController.testConexao);
 
 export default router;

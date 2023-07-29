@@ -1,24 +1,24 @@
 import mdmService from "../service/mdmService.js";
 
-async function recupDataPac(req, res, next) {
+async function populaBrzCor(req, res, next) {
   try {
-    await mdmService.recupDataPac();
-    res.send("STG Populada!");
+    await mdmService.populaBrzCor();
+    res.send("BRZ Populada!");
   } catch {
     next(err);
   }
 }
 
-async function populaBipPac(req, res, next) {
+async function populaPrtCor(req, res, next) {
   try {
-    await mdmService.populaBipPac();
-    res.send("BIP Populada!");
+    await mdmService.populaPrtCor();
+    res.send("PRT Populada!");
   } catch {
     next(err);
   }
 }
 
-async function geraInvalidoPac(req, res, next) {
+async function geraInvalidoCor(req, res, next) {
   try {
     // await mdmService.geraInvalido();
     res.send("Invalidos Gerados!");
@@ -27,18 +27,18 @@ async function geraInvalidoPac(req, res, next) {
   }
 }
 
-async function geraBupPac(req, res, next) {
+async function populaGldCor(req, res, next) {
   try {
-    // await mdmService.geraBup();
+    // await mdmService.populaGldCor();
     res.send("BUP Populada!");
   } catch {
     next(err);
   }
 }
 
-async function reproStatusPac(req, res, next) {
+async function reproStatusCor(req, res, next) {
   try {
-    // await mdmService.reproStatus();
+    // await mdmService.reproStatusCor();
     res.send("Registros Reprocessados!");
   } catch {
     next(err);
@@ -47,19 +47,18 @@ async function reproStatusPac(req, res, next) {
 
 async function testConexao(req, res, next) {
   try {
-    let teste = await mdmService.testConexao();
-    req.body = teste;
-    res.send(req.body);
+    await mdmService.testConexao();
+    res.send("Teste Concluído!");
   } catch {
     next(err);
   }
 }
 
 export default {
-  recupDataPac,
-  populaBipPac,
-  geraInvalidoPac,
-  geraBupPac,
-  reproStatusPac,
+  populaBrzCor,
+  populaPrtCor,
+  geraInvalidoCor,
+  populaGldCor,
+  reproStatusCor,
   testConexao,
 };

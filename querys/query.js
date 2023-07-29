@@ -1,45 +1,40 @@
-const q_recupDataPacCursorDtl = `
+const q_populaBrzCorCursorDtl = `
 BEGIN
-recupDataPacCursorBanguDtl();
-recupDataPacCursorCaxiasDtl();
-recupDataPacCursorNiteroiDtl();
-recupDataPacCursorGloriaDtl();
+populabrzcorcursorvermelhodtl;
+populabrzcorcursorazuldtl;
+populabrzcorcursorpretodtl;
+populabrzcorcursorrosadtl;
 END;
 `;
 
-const q_populaBipPac = `
+const q_populaPrtCor = `
 BEGIN
-popula_bip_pes_doc_pad();
-popula_bip_pes();
-popula_bip_pes_ctt_elet();
-popula_bip_pes_end();
-popula_bip_pes_tel();
+popula_prt_pes_doc_pad();
+popula_prt_pes();
+popula_prt_pes_ctt_elet();
+popula_prt_pes_end();
+popula_prt_pes_tel();
 END;
 `;
 
-const q_log_controle_inicio_Rdp = `BEGIN
-log_controle_mdm_inicio('recupDataPac');
-END;
-`;
-const q_log_controle_inicio_Pbp = `BEGIN
-log_controle_mdm_inicio('populaBipPac');
-END;
-`;
-const q_log_controle_fim_Rdp = `BEGIN
-log_controle_mdm_fim('recupDataPac');
-END;
-`;
+const q_log_controle_inicio = (msg) => {
+  let query = `BEGIN
+log_controle_mdm_inicio('${msg}');
+END;`;
+  return query;
+};
 
-const q_log_controle_fim_Pbp = `BEGIN
-log_controle_mdm_fim('populaBipPac');
+const q_log_controle_fim = (msg) => {
+  let query = `BEGIN
+log_controle_mdm_fim('${msg}');
 END;
 `;
+  return query;
+};
 
 export default {
-  q_recupDataPacCursorDtl,
-  q_populaBipPac,
-  q_log_controle_inicio_Rdp,
-  q_log_controle_fim_Rdp,
-  q_log_controle_inicio_Pbp,
-  q_log_controle_fim_Pbp,
+  q_populaBrzCorCursorDtl,
+  q_populaPrtCor,
+  q_log_controle_inicio,
+  q_log_controle_fim,
 };

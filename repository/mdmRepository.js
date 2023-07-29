@@ -1,9 +1,7 @@
 import oracledb from "oracledb";
-import { bancoQualidade } from "../db/db.js";
-import { qualidadeHml } from "../db/db.js";
 import query from "../querys/query.js";
 
-async function recupDataPac() {
+async function populaBrzCor() {
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
@@ -14,20 +12,20 @@ async function recupDataPac() {
     console.log("Conectado");
     // Consulta
     console.log("Iniciando query");
-    await connection.execute(query.q_log_controle_inicio_Rdp);
+    await connection.execute(query.q_log_controle_inicio("populaBrzCor"));
     console.log("Logado - Inicio");
-    await connection.execute(query.q_recupDataPacCursorDtl);
+    await connection.execute(query.q_populaBrzCorCursorDtl);
     console.log("Query finalizada...");
-    await connection.execute(query.q_log_controle_fim_Rdp);
+    await connection.execute(query.q_log_controle_fim("populaBrzCor"));
     console.log("Logado - Fim");
     await connection.close();
     console.log("Conexão fechada");
   } catch (error) {
-    console.error("Erro ao Consultar Hospitais", error);
+    console.error("Erro ao Consultar Cores", error);
   }
 }
 
-async function populaBipPac() {
+async function populaPrtCor() {
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
@@ -37,28 +35,27 @@ async function populaBipPac() {
     });
     // Query
     console.log("Iniciando query");
-    await connection.execute(query.q_log_controle_inicio_Pbp);
+    await connection.execute(query.q_log_controle_inicio("populaPrtCor"));
     console.log("Logado - Inicio");
-    await connection.execute(query.q_populaBipPac);
+    await connection.execute(query.q_populaPrtCor);
     console.log("Query finalizada...");
-    await connection.execute(query.q_log_controle_fim_Pbp);
+    await connection.execute(query.q_log_controle_fim("populaPrtCor"));
     console.log("Logado - Fim");
     // Fecha conexão
     await connection.close();
     console.log("Conexão fechada");
   } catch (error) {
-    console.error("Erro ao Popular BIP", error);
+    console.error("Erro ao Popular PRT", error);
   }
 }
 
-async function geraInvalidoPac() {
-  const { username, password, connectstring } = bancoQualidade;
+async function geraInvalidoCor() {
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
-      user: username,
-      password: password,
-      connectString: connectstring,
+      user: "SYSTEM",
+      password: "brumas1027",
+      connectString: "localhost:1521/xe",
     });
     // Query
     await connection.execute(query); // VERIFICAÇÃO NOME E CPF
@@ -69,56 +66,54 @@ async function geraInvalidoPac() {
   }
 }
 
-async function geraBupPac() {
-  const { username, password, connectstring } = bancoQualidade;
+async function populaGldCor() {
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
-      user: username,
-      password: password,
-      connectString: connectstring,
+      user: "SYSTEM",
+      password: "brumas1027",
+      connectString: "localhost:1521/xe",
     });
     // Query
-    await connection.execute(query); // BUP_PES
-    await connection.execute(query); // BUP_PES_CTT_ELET
-    await connection.execute(query); // BUP_PES_END
-    await connection.execute(query); // BUP_PES_INFO_BCO
-    await connection.execute(query); // BUP_PES_TEL
-    await connection.execute(query); // BUP_PES_DOC_PAD
+    await connection.execute(query); // GLD_PES
+    await connection.execute(query); // GLD_PES_END
+    await connection.execute(query); // GLD_PES_INFO_BCO
+    await connection.execute(query); // GLD_PES_TEL
+    await connection.execute(query); // GLD_PES_DOC_PAD
     // Fecha conexão
     await connection.close();
   } catch (error) {
-    console.error("Erro ao Popular BUP", error);
+    console.error("Erro ao Popular GLD", error);
   }
 }
 
-async function reproStatusPac() {
-  const { username, password, connectstring } = bancoQualidade;
+async function reproStatusCor() {
   try {
     // Cria conexão
     const connection = await oracledb.getConnection({
-      user: username,
-      password: password,
-      connectString: connectstring,
+      user: "SYSTEM",
+      password: "brumas1027",
+      connectString: "localhost:1521/xe",
     });
     // Query
     await connection.execute(query); // REPROSTATUS
     // Fecha conexão
     await connection.close();
   } catch (error) {
-    console.error("Erro ao Popular BUP", error);
+    console.error("Erro ao Reprocessar Cores", error);
   }
 }
 
 async function testConexao() {
-  const { username, password, connectstring } = qualidadeHml;
   try {
     console.log("Inciando conexão...");
     const connection = await oracledb.getConnection({
       user: "system",
       password: "brumas1027",
-      connectString: "localhost:1521/xepdb1",
+      connectString: "localhost:1521/xe",
     });
+    await connection.execute(query.q_log_controle_inicio("Teste"));
+    await connection.execute(query.q_log_controle_fim("Fim do teste"));
     console.log("Conectado!");
     await connection.close();
     console.log("Conexão fechada com sucesso!");
@@ -128,10 +123,10 @@ async function testConexao() {
 }
 
 export default {
-  recupDataPac,
-  populaBipPac,
-  geraInvalidoPac,
-  geraBupPac,
-  reproStatusPac,
+  populaBrzCor,
+  populaPrtCor,
+  geraInvalidoCor,
+  populaGldCor,
+  reproStatusCor,
   testConexao,
 };

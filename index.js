@@ -14,11 +14,11 @@ app.use((err, req, res, next) => {
 cron.schedule("0 0 * * *", meiaNoiteEvento);
 
 function meiaNoiteEvento() {
-  mdmRepository.recupDataPac();
-  mdmRepository.populaBipPac();
-  mdmRepository.geraInvalidoPac();
-  mdmRepository.geraBupPac();
-  mdmRepository.reproStatusPac();
+  mdmRepository.populaBrzCor();
+  mdmRepository.populaPrtCor();
+  mdmRepository.geraInvalidoCor();
+  mdmRepository.populaGldCor();
+  mdmRepository.reproStatusCor();
 
   console.log("20:50");
 }

@@ -92,24 +92,9 @@ CREATE TABLE bip_pes_tel (
 
 POPULAR TABELA ORIGEM
 
--- Script de INSERT com 10000 linhas
--- Substitua "TABELA_PACIENTES" pelo nome da sua tabela de destino
-
--- Tabela temporária para armazenar os 50 nomes aleatórios
-CREATE GLOBAL TEMPORARY TABLE temp_nomes (nome VARCHAR2(100));
-
--- Inserir os 50 nomes aleatórios na tabela temporária
-BEGIN
-  FOR i IN 1..50 LOOP
-    INSERT INTO temp_nomes (nome)
-    VALUES ('Nome_' || i);
-  END LOOP;
-END;
-/
-
 -- Inserir 10000 linhas na tabela de destino com valores aleatórios
-INSERT INTO hospital_niteroi (
-  cd_prontuario,
+INSERT INTO local_vermelho (
+  cd_pk,
   nm_paciente,
   nm_mae,
   nm_pai,
@@ -124,17 +109,22 @@ INSERT INTO hospital_niteroi (
   nr_tel_residencial,
   nr_tel_celular,
   nr_tel_comercial,
-  dt_abrt_prontuario,
+  dt_abrt_pk,
   ds_email,
-  bip,
+  prt,
   dt_pcm_cdd,
-  flag_prc_para_bip
+  flag_prc_para_prt
+)
+WITH random_names AS (
+  SELECT 'Nome_' || LEVEL AS nome
+  FROM DUAL
+  CONNECT BY LEVEL <= 50
 )
 SELECT
-  ROWNUM AS cd_prontuario,
-  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
-  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
-  (SELECT nome FROM (SELECT nome FROM temp_nomes ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+  SEQ_LOCAL_VERMELHO.nextval AS cd_pk,
+  (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+  (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+  (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
   TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
   CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
   TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
@@ -146,16 +136,234 @@ SELECT
   TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
   TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
   TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
-  TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_prontuario,
+  TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_pk,
   'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
-  NULL AS bip,
+  NULL AS prt,
   NULL AS dt_pcm_cdd,
-  'N' AS flag_prc_para_bip
+  'N' AS flag_prc_para_prt
 FROM DUAL
 CONNECT BY LEVEL <= 10000;
 
--- Remover a tabela temporária
-DROP TABLE temp_nomes;
+CREATE OR REPLACE PROCEDURE popula_tabelas AS
+BEGIN
+  FOR i IN 1..4 LOOP
+    IF i = 1 THEN
+      -- Tabela local_vermelho
+      INSERT INTO local_vermelho (
+        cd_pk,
+        nm_paciente,
+        nm_mae,
+        nm_pai,
+        dt_nascimento,
+        cd_sexo,
+        nr_cpf,
+        nm_lgr_end_residencial,
+        nr_end_residencial,
+        nm_brro_end_residencial,
+        nm_cid_end_residencial,
+        cep_end_residencial,
+        nr_tel_residencial,
+        nr_tel_celular,
+        nr_tel_comercial,
+        dt_abrt_pk,
+        ds_email,
+        prt,
+        dt_pcm_cdd,
+        flag_prc_para_prt
+      )
+      WITH random_names AS (
+        SELECT 'Nome_' || LEVEL AS nome
+        FROM DUAL
+        CONNECT BY LEVEL <= 50
+      )
+      SELECT
+        SEQ_LOCAL_VERMELHO.nextval AS cd_pk,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
+        CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
+        'Logradouro' || TO_CHAR(LEVEL) AS nm_lgr_end_residencial,
+        TO_CHAR(LEVEL) AS nr_end_residencial,
+        'Bairro' || TO_CHAR(LEVEL) AS nm_brro_end_residencial,
+        'Cidade' || TO_CHAR(LEVEL) AS nm_cid_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000, 99999999))) AS cep_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_pk,
+        'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
+        NULL AS prt,
+        NULL AS dt_pcm_cdd,
+        'N' AS flag_prc_para_prt
+      FROM DUAL
+      CONNECT BY LEVEL <= 10000;
+
+    ELSIF i = 2 THEN
+      -- Tabela local_azul
+      INSERT INTO local_azul (
+        cd_pk,
+        nm_paciente,
+        nm_mae,
+        nm_pai,
+        dt_nascimento,
+        cd_sexo,
+        nr_cpf,
+        nm_lgr_end_residencial,
+        nr_end_residencial,
+        nm_brro_end_residencial,
+        nm_cid_end_residencial,
+        cep_end_residencial,
+        nr_tel_residencial,
+        nr_tel_celular,
+        nr_tel_comercial,
+        dt_abrt_pk,
+        ds_email,
+        prt,
+        dt_pcm_cdd,
+        flag_prc_para_prt
+      )
+      WITH random_names AS (
+        SELECT 'Nome_' || LEVEL AS nome
+        FROM DUAL
+        CONNECT BY LEVEL <= 50
+      )
+      SELECT
+        SEQ_LOCAL_AZUL.nextval AS cd_pk,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
+        CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
+        'Logradouro' || TO_CHAR(LEVEL) AS nm_lgr_end_residencial,
+        TO_CHAR(LEVEL) AS nr_end_residencial,
+        'Bairro' || TO_CHAR(LEVEL) AS nm_brro_end_residencial,
+        'Cidade' || TO_CHAR(LEVEL) AS nm_cid_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000, 99999999))) AS cep_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_pk,
+        'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
+        NULL AS prt,
+        NULL AS dt_pcm_cdd,
+        'N' AS flag_prc_para_prt
+      FROM DUAL
+      CONNECT BY LEVEL <= 10000;
+	  
+    ELSIF i = 3 THEN
+	-- Tabela local_preto
+     INSERT INTO local_preto (
+        cd_pk,
+        nm_paciente,
+        nm_mae,
+        nm_pai,
+        dt_nascimento,
+        cd_sexo,
+        nr_cpf,
+        nm_lgr_end_residencial,
+        nr_end_residencial,
+        nm_brro_end_residencial,
+        nm_cid_end_residencial,
+        cep_end_residencial,
+        nr_tel_residencial,
+        nr_tel_celular,
+        nr_tel_comercial,
+        dt_abrt_pk,
+        ds_email,
+        prt,
+        dt_pcm_cdd,
+        flag_prc_para_prt
+      )
+      WITH random_names AS (
+        SELECT 'Nome_' || LEVEL AS nome
+        FROM DUAL
+        CONNECT BY LEVEL <= 50
+      )
+      SELECT
+        SEQ_LOCAL_PRETO.nextval AS cd_pk,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
+        CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
+        'Logradouro' || TO_CHAR(LEVEL) AS nm_lgr_end_residencial,
+        TO_CHAR(LEVEL) AS nr_end_residencial,
+        'Bairro' || TO_CHAR(LEVEL) AS nm_brro_end_residencial,
+        'Cidade' || TO_CHAR(LEVEL) AS nm_cid_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000, 99999999))) AS cep_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_pk,
+        'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
+        NULL AS prt,
+        NULL AS dt_pcm_cdd,
+        'N' AS flag_prc_para_prt
+      FROM DUAL
+      CONNECT BY LEVEL <= 10000;
+
+    ELSIF i = 4 THEN
+      -- Tabela local_rosa
+      INSERT INTO local_rosa (
+        cd_pk,
+        nm_paciente,
+        nm_mae,
+        nm_pai,
+        dt_nascimento,
+        cd_sexo,
+        nr_cpf,
+        nm_lgr_end_residencial,
+        nr_end_residencial,
+        nm_brro_end_residencial,
+        nm_cid_end_residencial,
+        cep_end_residencial,
+        nr_tel_residencial,
+        nr_tel_celular,
+        nr_tel_comercial,
+        dt_abrt_pk,
+        ds_email,
+        prt,
+        dt_pcm_cdd,
+        flag_prc_para_prt
+      )
+      WITH random_names AS (
+        SELECT 'Nome_' || LEVEL AS nome
+        FROM DUAL
+        CONNECT BY LEVEL <= 50
+      )
+      SELECT
+        SEQ_LOCAL_rosa.nextval AS cd_pk,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_paciente,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_mae,
+        (SELECT nome FROM (SELECT nome FROM random_names ORDER BY dbms_random.value) WHERE ROWNUM = 1) AS nm_pai,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_nascimento,
+        CASE WHEN DBMS_RANDOM.VALUE(0, 1) < 0.5 THEN 'M' ELSE 'F' END AS cd_sexo,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_cpf,
+        'Logradouro' || TO_CHAR(LEVEL) AS nm_lgr_end_residencial,
+        TO_CHAR(LEVEL) AS nr_end_residencial,
+        'Bairro' || TO_CHAR(LEVEL) AS nm_brro_end_residencial,
+        'Cidade' || TO_CHAR(LEVEL) AS nm_cid_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000, 99999999))) AS cep_end_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_residencial,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_celular,
+        TO_CHAR(TRUNC(DBMS_RANDOM.VALUE(10000000000, 99999999999))) AS nr_tel_comercial,
+        TO_DATE('1990-01-01', 'YYYY-MM-DD') + DBMS_RANDOM.VALUE(0, 10000) AS dt_abrt_pk,
+        'email' || TO_CHAR(LEVEL) || '@gmail.com' AS ds_email,
+        NULL AS prt,
+        NULL AS dt_pcm_cdd,
+        'N' AS flag_prc_para_prt
+      FROM DUAL
+      CONNECT BY LEVEL <= 10000;
+    END IF;
+  END LOOP;
+END;
+/
+
+
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------

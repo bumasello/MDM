@@ -1,35 +1,34 @@
 import mdmRepository from "../repository/mdmRepository.js";
 
-async function recupDataPac() {
-  return await mdmRepository.recupDataPac();
+async function populaBrzCor() {
+  return await mdmRepository.populaBrzCor();
 }
 
-async function populaBipPac() {
-  return await mdmRepository.populaBipPac();
+async function populaPrtCor() {
+  return await mdmRepository.populaPrtCor();
 }
 
-async function geraInvalidoPac() {
-  return await mdmRepository.geraInvalido();
+async function geraInvalidoCor() {
+  return await mdmRepository.geraInvalidoCor();
 }
 
-async function geraBupPac() {
-  return await mdmRepository.geraBup();
+async function populaGldCor() {
+  return await mdmRepository.populaGldCor();
 }
 
-async function reproStatusPac() {
-  return await mdmRepository.reproStatus();
+async function reproStatusCor() {
+  return await mdmRepository.reproStatusCor();
 }
 
 async function testConexao() {
-  let teste = await mdmRepository.testConexao();
-  return teste;
+  return await mdmRepository.testConexao();
 }
 
 export default {
-  recupDataPac,
-  populaBipPac,
-  geraInvalidoPac,
-  geraBupPac,
-  reproStatusPac,
+  populaBrzCor,
+  populaPrtCor,
+  geraInvalidoCor,
+  populaGldCor,
+  reproStatusCor,
   testConexao,
 };

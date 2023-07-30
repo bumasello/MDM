@@ -9,5 +9,5 @@ router.get("/geraInvalidoCor", mdmController.geraInvalidoCor);
 router.get("/populaGldCor", mdmController.populaGldCor);
 router.get("/reproStatus", mdmController.reproStatusCor);
 router.get("/testConexao", mdmController.testConexao);
-
+router.get("/meiaNoiteEvento", mdmController.meiaNoiteEvento);
 export default router;

@@ -84,6 +84,32 @@ CREATE TABLE bip_pes_tel (
 );
 
 
+CREATE TABLE invalido (
+  id_inv_prt_pes NUMBER PRIMARY KEY,
+  id_prt_pes NUMBER,
+  motiv_inv VARCHAR2(200),
+  dt_cad DATE,
+  dt_fim DATE
+);
+
+CREATE TABLE MRRO (
+  id_mrro NUMBER PRIMARY KEY,
+  nr_cpr NUMBER,
+  nome VARCHAR2(100),
+  dt_nasc DATE,
+  nm_mae VARCHAR2(100),
+  cd_sexo CHAR(1)
+);
+
+CREATE TABLE cura_inv (
+  cpf VARCHAR2(11) PRIMARY KEY,
+  nome VARCHAR2(100),
+  end VARCHAR2(200),
+  tel VARCHAR2(20)
+);
+
+
+
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------

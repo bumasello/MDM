@@ -16,10 +16,10 @@ cron.schedule("0 0 * * *", meiaNoiteEvento);
 function meiaNoiteEvento() {
   mdmRepository.populaBrzCor();
   mdmRepository.populaPrtCor();
-  mdmRepository.geraInvalidoCor();
+  /* mdmRepository.geraInvalidoCor();
   mdmRepository.populaGldCor();
   mdmRepository.reproStatusCor();
-
+    */
   console.log("20:50");
 }
 

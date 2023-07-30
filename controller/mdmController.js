@@ -54,6 +54,16 @@ async function testConexao(req, res, next) {
   }
 }
 
+async function meiaNoiteEvento(req, res, next) {
+  try {
+    await mdmService.populaBrzCor();
+    await mdmService.populaPrtCor();
+    res.send("Carga Completa!");
+  } catch {
+    next(err);
+  }
+}
+
 export default {
   populaBrzCor,
   populaPrtCor,
@@ -61,4 +71,5 @@ export default {
   populaGldCor,
   reproStatusCor,
   testConexao,
+  meiaNoiteEvento,
 };

@@ -345,3 +345,33 @@ EXCEPTION
     ROLLBACK; -- Em caso de erro, desfazer as mudanças
     RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
 END;
+
+
+-- q_processa_cura_inv ---------------------------------------------------------------------------------------------
+
+
+CREATE OR REPLACE PROCEDURE processar_cura_inv AS
+BEGIN
+  -- Inserir os registros com FLAG ID_PROCESSAR = 'S' na tabela cura_inv
+  INSERT INTO cura_inv (id_prt_pes, cpf, nome, end, tel)
+  SELECT
+    prt_pes_doc_pad.id_prt_pes,
+    prt_pes_doc_pad.nr_cpf,
+    prt_pes.nm_pes,
+    prt_pes_end.nm_lgd,
+    prt_pes_tel.nr_tel
+  FROM
+    prt_pes_doc_pad
+    JOIN prt_pes ON prt_pes_doc_pad.id_prt_pes = prt_pes.id_prt_pes
+    JOIN prt_pes_end ON prt_pes_doc_pad.id_prt_pes = prt_pes_end.id_prt_pes
+    JOIN prt_pes_tel ON prt_pes_doc_pad.id_prt_pes = prt_pes_tel.id_prt_pes
+  WHERE
+    prt_pes_doc_pad.id_processar = 'S';
+
+  COMMIT; -- Comitar as mudanças para o banco
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK; -- Em caso de erro, desfazer as mudanças
+    RAISE;    -- Re-lançar a exceção para tratamento externo, se necessário
+END;
+/

@@ -9,6 +9,15 @@ async function populaBrzCor(req, res, next) {
   }
 }
 
+async function updateBrzCor(req, res, next) {
+  try {
+    await mdmService.updateBrzCor();
+    res.send("BRZ Atualizada!");
+  } catch {
+    next(err);
+  }
+}
+
 async function populaPrtCor(req, res, next) {
   try {
     await mdmService.populaPrtCor();
@@ -18,9 +27,18 @@ async function populaPrtCor(req, res, next) {
   }
 }
 
+async function updatePrtCor(req, res, next) {
+  try {
+    await mdmService.updatePrtCor();
+    res.send("PRT Atualizada!");
+  } catch {
+    next(err);
+  }
+}
+
 async function geraInvalidoCor(req, res, next) {
   try {
-    // await mdmService.geraInvalido();
+    await mdmService.geraInvalidoCor();
     res.send("Invalidos Gerados!");
   } catch {
     next(err);
@@ -57,7 +75,9 @@ async function testConexao(req, res, next) {
 async function meiaNoiteEvento(req, res, next) {
   try {
     await mdmService.populaBrzCor();
+    await mdmService.updateBrzCor();
     await mdmService.populaPrtCor();
+    await mdmService.updatePrtCor();
     res.send("Carga Completa!");
   } catch {
     next(err);
@@ -66,7 +86,9 @@ async function meiaNoiteEvento(req, res, next) {
 
 export default {
   populaBrzCor,
+  updateBrzCor,
   populaPrtCor,
+  updatePrtCor,
   geraInvalidoCor,
   populaGldCor,
   reproStatusCor,

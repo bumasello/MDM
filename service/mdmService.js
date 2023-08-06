@@ -4,10 +4,17 @@ async function populaBrzCor() {
   return await mdmRepository.populaBrzCor();
 }
 
+async function updateBrzCor() {
+  return await mdmRepository.updateBrzCor();
+}
+
 async function populaPrtCor() {
   return await mdmRepository.populaPrtCor();
 }
 
+async function updatePrtCor() {
+  return await mdmRepository.updatePrtCor();
+}
 async function geraInvalidoCor() {
   return await mdmRepository.geraInvalidoCor();
 }
@@ -26,7 +33,9 @@ async function testConexao() {
 
 export default {
   populaBrzCor,
+  updateBrzCor,
   populaPrtCor,
+  updatePrtCor,
   geraInvalidoCor,
   populaGldCor,
   reproStatusCor,

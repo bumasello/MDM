@@ -109,7 +109,7 @@ async function geraInvalidoCor() {
     console.log("Iniciando query");
     await connection.execute(query.q_log_controle_inicio("geraInvalidoCor"));
     console.log("Logado - Inicio");
-    await connection.execute(query); // VERIFICAÇÃO NOME E CPF
+    await connection.execute(query.q_geraInvalidoCor); // VERIFICAÇÃO NOME E CPF
     console.log("Query Finalizada...");
     await connection.execute(query.q_log_controle_fim("geraInvalidoCor"));
     console.log("Logado - Fim");

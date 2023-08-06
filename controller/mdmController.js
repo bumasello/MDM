@@ -78,6 +78,7 @@ async function meiaNoiteEvento(req, res, next) {
     await mdmService.updateBrzCor();
     await mdmService.populaPrtCor();
     await mdmService.updatePrtCor();
+    await mdmService.geraInvalidoCor();
     res.send("Carga Completa!");
   } catch {
     next(err);

@@ -15,6 +15,7 @@ async function populaPrtCor() {
 async function updatePrtCor() {
   return await mdmRepository.updatePrtCor();
 }
+
 async function geraInvalidoCor() {
   return await mdmRepository.geraInvalidoCor();
 }
